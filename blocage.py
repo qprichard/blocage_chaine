@@ -30,7 +30,7 @@ headers = {
 }
 params = (
     ('system_id', 'payutc'),
-    ('app_key', '0a93e8e18e6ed78fa50c4d74e949801b'),
+    ('app_key', 'ENTER APP KEY HERE'),
     ('sessionid', 'wq6g9czs7gfjdt109418b2tix56w9tv8'),
 )
 
@@ -43,7 +43,7 @@ def block_User(usr_id, wallet, fundationid, sessionid):
 
     params = (
         ('system_id', 'payutc'),
-        ('app_key', '0a93e8e18e6ed78fa50c4d74e949801b'),
+        ('app_key', 'ENTER APP KEY HERE'),
         ('sessionid', str(sessionid)),
     )
 
@@ -71,7 +71,7 @@ def unblock_User(fundationid, blo_id, sessionid):
 
     params = (
         ('system_id', 'payutc'),
-        ('app_key', '0a93e8e18e6ed78fa50c4d74e949801b'),
+        ('app_key', 'ENTER APP KEY HERE'),
         ('sessionid', str(sessionid)),
     )
 
@@ -88,7 +88,7 @@ def loginCas2(username,password):
 
     params = (
         ('system_id', 'payutc'),
-        ('app_key', '0a93e8e18e6ed78fa50c4d74e949801b'),
+        ('app_key', 'ENTER APP KEY HERE'),
         #('sessionid', 'vc4zyvwjkbwxxfo9zaowyl0d7e4yx5lh'),
     )
     service = 'http://localhost/nemopay-mini-cli/login'
