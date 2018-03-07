@@ -10,16 +10,17 @@ import random
 from threading import Thread
 
 class Bloqueur(Thread):
-    def __init__(self, username, blocked_time, sessionid, fundationid):
+    def __init__(self, username, blockingTime, unblockingTime, sessionid, fundationid):
         Thread.__init__(self)
         self.username = username
-        self.blocked_time = blocked_time
+        self.blockingTime = blockingTime
+        self.unblockingTime = unblockingTime
         self.sessionid = sessionid
         self.fundationid = fundationid
     def run(self):
         usr_id = getUserInfo(self.username, 'usrid', self.sessionid)
         wallet = getUserInfo(self.username, 'wallet', self.sessionid)
-        loopingblock(self.fundationid, usr_id, wallet, self.sessionid, self.blocked_time)
+        loopingblock(self.fundationid, usr_id, wallet, self.sessionid, self.blockingTime, self.unblockingTime)
 
 
 
@@ -158,15 +159,16 @@ def getUserInfo(info, type, sessionid):
         return response.json()[0]['tag']
 
 #bloque et débloque en boucle avec un temps de bloquage et de débloquage
-def loopingblock(fundation, usrid, wallet, sessionid, sleepingTime):
+def loopingblock(fundation, usrid, wallet, sessionid, blockingTime, unblockingTime):
     block = 0
     while True:
         if(block!=0):
             unblock_User(fundation, block, sessionid)
             block = 0
+            time.sleep(unblockingTime)
         else:
             block = block_User(usrid, wallet, fundation, sessionid)
-        time.sleep(sleepingTime)
+            time.sleep(blockingTime)
 
 #definit date/heure etc /!\ INUTILISE /!\
 def setBlockend(number, type):
@@ -208,14 +210,14 @@ def setBlockend(number, type):
 
 
 #crée un thread par personne a bloquer
-def creatingThread(inputfile, blocked_time, sessionid, fundationid):
+def creatingThread(inputfile, blockingTime, unblockingTime,  sessionid, fundationid):
 
     thread_tab=[]
     with open(inputfile, 'rt') as csvfile:
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         for row in spamreader:
             if(row[0]!=''):
-                thread_tab.append(Bloqueur(str(row[0]), blocked_time, sessionid, fundationid))
+                thread_tab.append(Bloqueur(str(row[0]), blockingTime, unblockingTime, sessionid, fundationid))
                 print(row[0])
 
 
@@ -237,7 +239,7 @@ def main(argv):
     #wallet = getUserInfo(blocked_username, 'wallet', sessionid)
     #fundationid = 2
 
-    creatingThread('liste.csv', 20, str(sessionid), 2)
+    creatingThread('liste.csv', 5, 10, str(sessionid), 2)
 
 
 
