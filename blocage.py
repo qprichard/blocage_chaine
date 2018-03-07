@@ -5,7 +5,7 @@ import json
 import urllib
 import urllib.parse
 import time
-
+import mdp
 
 class bcolors:
     HEADER = '\033[95m'
@@ -30,8 +30,8 @@ headers = {
 }
 params = (
     ('system_id', 'payutc'),
-    ('app_key', 'ENTER APP KEY HERE'),
-    ('sessionid', 'wq6g9czs7gfjdt109418b2tix56w9tv8'),
+    ('app_key', mdp.APP_KEY),
+    #('sessionid', 'wq6g9czs7gfjdt109418b2tix56w9tv8'),
 )
 
 
@@ -43,7 +43,7 @@ def block_User(usr_id, wallet, fundationid, sessionid):
 
     params = (
         ('system_id', 'payutc'),
-        ('app_key', 'ENTER APP KEY HERE'),
+        ('app_key', mdp.APP_KEY),
         ('sessionid', str(sessionid)),
     )
 
@@ -71,7 +71,7 @@ def unblock_User(fundationid, blo_id, sessionid):
 
     params = (
         ('system_id', 'payutc'),
-        ('app_key', 'ENTER APP KEY HERE'),
+        ('app_key', mdp.APP_KEY),
         ('sessionid', str(sessionid)),
     )
 
@@ -88,7 +88,7 @@ def loginCas2(username,password):
 
     params = (
         ('system_id', 'payutc'),
-        ('app_key', 'ENTER APP KEY HERE'),
+        ('app_key', mdp.APP_KEY),
         #('sessionid', 'vc4zyvwjkbwxxfo9zaowyl0d7e4yx5lh'),
     )
     service = 'http://localhost/nemopay-mini-cli/login'
@@ -122,22 +122,62 @@ def loginCas2(username,password):
 
     return response.json()
 
+#permet d'obtenir les infos sur un user en donnant login, badge ou wallet
+#Type permet de definir le type d'info en retour (username, wallet, usrid, tag)
+def getUserInfo(info, type, sessionid):
+
+    print("Getting " + info + " wallet id" )
+
+    myheaders = {
+    		'Content-Type': 'application/json',
+    		'Nemopay-Version': '2017-12-15',
+    }
+
+    params = (
+		('system_id', 'payutc'),
+        ('app_key', mdp.APP_KEY),
+		('sessionid', sessionid),
+
+	)
+    data = '{"queryString":"'+str(info)+'","wallet_config":1}'
+    response = requests.post('https://api.nemopay.net/services/GESUSERS/walletAutocomplete', headers=myheaders, params=params, data=data)
+    if(type == 'username'):
+        return response.json()[0]['username']
+    if(type == 'wallet'):
+        return response.json()[0]['id']
+    if(type == 'usrid'):
+        return response.json()[0]['user_id']
+    if(type == 'tag'):
+        return response.json()[0]['tag']
+
+
+
+
+
+
+
+
+
+
+
 def main():
 
-"""
-    data = loginCas2('qrichard', 'QuenRic94')
+
+    data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
     sessionid = data['sessionid']
     i=1
     block = 0
+    usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
+    wallet = getUserInfo('mmarchan', 'wallet', sessionid)
     while(i==1):
         if(block!=0):
             unblock_User(2,block, sessionid)
             block = 0
         else:
-            block = block_User(15113,5595,2, sessionid)
+            block = block_User(usr_id,wallet,2, sessionid)
 
-        time.sleep(3)
-"""
+        time.sleep(20)
+
     #print(block_User(15113, 5595, 2))
     #unblock_User(2,3998)
     #t = time.localtime()
