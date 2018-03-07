@@ -231,6 +231,8 @@ def creatingThread(inputfile, blockingTime, unblockingTime,  sessionid, fundatio
 def main(argv):
     #blocked_username = str(sys.argv[1])
     #blocked_time = int(sys.argv[2])
+    blockingTime = int(sys.argv[1])
+    unblockingTime = int(sys.argv[2])
 
     data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
     sessionid = data['sessionid']
@@ -239,7 +241,7 @@ def main(argv):
     #wallet = getUserInfo(blocked_username, 'wallet', sessionid)
     #fundationid = 2
 
-    creatingThread('liste.csv', 5, 10, str(sessionid), 2)
+    creatingThread('liste.csv', blockingTime, unblockingTime, str(sessionid), 2)
 
 
 
