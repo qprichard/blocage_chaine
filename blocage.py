@@ -248,17 +248,5 @@ def main(argv):
     #loopingblock(fundationid, usr_id, wallet, sessionid, blocked_time)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
 if __name__ == "__main__":
 	main(sys.argv[1:])
