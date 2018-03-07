@@ -43,7 +43,7 @@ params = (
 
 
 
-
+#fonction pour bloquer quelqu'un à partir d'un usrid et d'un wallet sur une fondation donnee
 def block_User(usr_id, wallet, fundationid, sessionid):
     blocked_id = 0
 
@@ -53,9 +53,9 @@ def block_User(usr_id, wallet, fundationid, sessionid):
         ('sessionid', str(sessionid)),
     )
 
-#2019-03-05T22:59:00.000Z
+    #2019-03-05T22:59:00.000Z
     #ajoute la personne a bloquer
-    data = '{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"Perdant.","fun_id":'+str(fundationid)+',"date_fin":"2019-03-05T22:59:00.000Z"}'
+    data = '{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"Bizut! reviens dans 1 minute","fun_id":'+str(fundationid)+',"date_fin":"2019-03-05T22:59:00.000Z"}'
     response = requests.post('https://api.nemopay.net/services/BLOCKED/block', headers=headers, params=params, data=data)
 
 
@@ -86,6 +86,7 @@ def unblock_User(fundationid, blo_id, sessionid):
     response = requests.post('https://api.nemopay.net/services/BLOCKED/remove', headers=headers, params=params, data=data)
     print("user unblocked")
 
+#login Cas
 def loginCas2(username,password):
     myheaders = {
                 'Content-Type': 'application/json',
@@ -156,6 +157,7 @@ def getUserInfo(info, type, sessionid):
     if(type == 'tag'):
         return response.json()[0]['tag']
 
+#bloque et débloque en boucle avec un temps de bloquage et de débloquage
 def loopingblock(fundation, usrid, wallet, sessionid, sleepingTime):
     block = 0
     while True:
@@ -166,7 +168,7 @@ def loopingblock(fundation, usrid, wallet, sessionid, sleepingTime):
             block = block_User(usrid, wallet, fundation, sessionid)
         time.sleep(sleepingTime)
 
-
+#definit date/heure etc /!\ INUTILISE /!\
 def setBlockend(number, type):
     t = time.localtime()
 
@@ -205,13 +207,7 @@ def setBlockend(number, type):
     return mytime
 
 
-
-
-
-
-
-
-
+#crée un thread par personne a bloquer
 def creatingThread(inputfile, blocked_time, sessionid, fundationid):
 
     thread_tab=[]
@@ -241,7 +237,7 @@ def main(argv):
     #wallet = getUserInfo(blocked_username, 'wallet', sessionid)
     #fundationid = 2
 
-    creatingThread('liste.csv', 5, str(sessionid), 2)
+    creatingThread('liste.csv', 20, str(sessionid), 2)
 
 
 
