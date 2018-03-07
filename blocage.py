@@ -147,6 +147,7 @@ def loopingblock(fundation, usrid, wallet, sessionid, sleepingTime):
     while True:
         if(block!=0):
             unblock_User(fundation, block, sessionid)
+            block = 0
         else:
             block = block_User(usrid, wallet, fundation, sessionid)
         time.sleep(sleepingTime)
@@ -198,14 +199,16 @@ def setBlockend(number, type):
 
 
 def main(argv):
+    blocked_username = str(sys.argv[1])
+    blocked_time = int(sys.argv[2])
 
     data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
     sessionid = data['sessionid']
-    usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
-    wallet = getUserInfo('mmarchan', 'wallet', sessionid)
+    usr_id = getUserInfo(blocked_username, 'usrid', sessionid)
+    wallet = getUserInfo(blocked_username, 'wallet', sessionid)
     fundationid = 2
 
-    loopingblock(fundationid, usr_id, wallet, sessionid, 20)
+    loopingblock(fundationid, usr_id, wallet, sessionid, blocked_time)
 
 
 
