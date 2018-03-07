@@ -7,15 +7,7 @@ import urllib.parse
 import time
 import mdp
 
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
+
 
 headers = {
     'Host': 'api.nemopay.net',
@@ -126,7 +118,7 @@ def loginCas2(username,password):
 #Type permet de definir le type d'info en retour (username, wallet, usrid, tag)
 def getUserInfo(info, type, sessionid):
 
-    print("Getting " + info + " wallet id" )
+    print("Getting " + info + ' '+ type )
 
     myheaders = {
     		'Content-Type': 'application/json',
@@ -205,19 +197,15 @@ def setBlockend(number, type):
 
 
 
-def main():
+def main(argv):
 
-    #2018-03-05T22:59:00.000Z
+    data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
+    sessionid = data['sessionid']
+    usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
+    wallet = getUserInfo('mmarchan', 'wallet', sessionid)
+    fundationid = 2
 
-
-
-        data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
-        sessionid = data['sessionid']
-        usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
-        wallet = getUserInfo('mmarchan', 'wallet', sessionid)
-        fundationid = 2
-
-        loopingblock(fundationid, usr_id, wallet, sessionid, 20)
+    loopingblock(fundationid, usr_id, wallet, sessionid, 20)
 
 
 
@@ -225,4 +213,11 @@ def main():
 
 
 
-main()
+
+
+
+
+
+
+if __name__ == "__main__":
+	main(sys.argv[1:])
