@@ -54,7 +54,7 @@ def block_User(usr_id, wallet, fundationid, sessionid):
 
 
     #reccupère le blo_id de la personne
-    data='{"fun_id":2}'
+    data='{"fun_id":'+str(fundationid)+'}'
     response = requests.post('https://api.nemopay.net/services/BLOCKED/getAll', headers=headers, params=params, data=data)
     json_data = json.loads(response.text)
 
@@ -150,6 +150,14 @@ def getUserInfo(info, type, sessionid):
     if(type == 'tag'):
         return response.json()[0]['tag']
 
+def loopingblock(fundation, usrid, wallet, sessionid, sleepingTime):
+    block = 0
+    while True:
+        if(block!=0):
+            unblock_User(fundation, block, sessionid)
+        else:
+            block = block_User(usrid, wallet, fundation, sessionid)
+        time.sleep(sleepingTime)
 
 
 
@@ -165,19 +173,10 @@ def main():
 
     data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
     sessionid = data['sessionid']
-    i=1
-    block = 0
     usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
     wallet = getUserInfo('mmarchan', 'wallet', sessionid)
-    while(i==1):
-        if(block!=0):
-            unblock_User(2,block, sessionid)
-            block = 0
-        else:
-            block = block_User(usr_id,wallet,2, sessionid)
-
-        time.sleep(20)
-
+    fundationid = 2
+    loopingblock(fundationid, usr_id, wallet, sessionid, 20)
     #print(block_User(15113, 5595, 2))
     #unblock_User(2,3998)
     #t = time.localtime()
