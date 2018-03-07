@@ -6,6 +6,20 @@ import urllib
 import urllib.parse
 import time
 import mdp
+import random
+from threading import Thread
+
+class Bloqueur(Thread):
+    def __init__(self, username, blocked_time, sessionid, fundationid):
+        Thread.__init__(self)
+        self.username = username
+        self.blocked_time = blocked_time
+        self.sessionid = sessionid
+        self.fundationid = fundationid
+    def run(self):
+        usr_id = getUserInfo(self.username, 'usrid', self.sessionid)
+        wallet = getUserInfo(self.username, 'wallet', self.sessionid)
+        loopingblock(self.fundationid, usr_id, wallet, self.sessionid, self.blocked_time)
 
 
 
@@ -39,13 +53,13 @@ def block_User(usr_id, wallet, fundationid, sessionid):
         ('sessionid', str(sessionid)),
     )
 
-
+#2019-03-05T22:59:00.000Z
     #ajoute la personne a bloquer
-    data = '{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"fils de ta maman","fun_id":'+str(fundationid)+',"date_fin":"2019-03-05T22:59:00.000Z"}'
+    data = '{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"Perdant.","fun_id":'+str(fundationid)+',"date_fin":"2019-03-05T22:59:00.000Z"}'
     response = requests.post('https://api.nemopay.net/services/BLOCKED/block', headers=headers, params=params, data=data)
 
 
-    #reccupère le blo_id de la personne
+    #reccupere le blo_id de la personne
     data='{"fun_id":'+str(fundationid)+'}'
     response = requests.post('https://api.nemopay.net/services/BLOCKED/getAll', headers=headers, params=params, data=data)
     json_data = json.loads(response.text)
@@ -198,17 +212,41 @@ def setBlockend(number, type):
 
 
 
+def creatingThread(inputfile, blocked_time, sessionid, fundationid):
+
+    thread_tab=[]
+    with open(inputfile, 'rt') as csvfile:
+        spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+        for row in spamreader:
+            if(row[0]!=''):
+                thread_tab.append(Bloqueur(str(row[0]), blocked_time, sessionid, fundationid))
+                print(row[0])
+
+
+    for i in range(len(thread_tab)):
+        thread_tab[i].start()
+    for i in range(len(thread_tab)):
+        thread_tab[i].join()
+
+
+
 def main(argv):
-    blocked_username = str(sys.argv[1])
-    blocked_time = int(sys.argv[2])
+    #blocked_username = str(sys.argv[1])
+    #blocked_time = int(sys.argv[2])
 
     data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
     sessionid = data['sessionid']
-    usr_id = getUserInfo(blocked_username, 'usrid', sessionid)
-    wallet = getUserInfo(blocked_username, 'wallet', sessionid)
-    fundationid = 2
 
-    loopingblock(fundationid, usr_id, wallet, sessionid, blocked_time)
+    #usr_id = getUserInfo(blocked_username, 'usrid', sessionid)
+    #wallet = getUserInfo(blocked_username, 'wallet', sessionid)
+    #fundationid = 2
+
+    creatingThread('liste.csv', 5, str(sessionid), 2)
+
+
+
+    #loopingblock(fundationid, usr_id, wallet, sessionid, blocked_time)
+
 
 
 
