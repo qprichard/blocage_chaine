@@ -160,6 +160,43 @@ def loopingblock(fundation, usrid, wallet, sessionid, sleepingTime):
         time.sleep(sleepingTime)
 
 
+def setBlockend(number, type):
+    t = time.localtime()
+
+    if(type=='year'): tyear = t.tm_year+number
+    else : tyear = t.tm_year
+    if(type=='month'): tmonth = (t.tm_mon+number)%12
+    else : tmonth = t.tm_mon
+    if(type=='day'): tday = (t.tm_mday+number)%31
+    else : tday = t.tm_mday
+    if(type=='hour'): thour = (t.tm_hour+number)%24
+    else : thour = t.tm_hour
+    if(type=='min'): ttmin = (t.tm_min+number)%60
+    else : ttmin = t.tm_min
+    if(type=='sec'): tsec = (t.tm_sec+number)%60
+    else : tsec = t.tm_sec
+
+
+
+
+
+    year = str(tyear)
+    if tmonth<10 : month = '0'+str(tmonth)
+    else:  month = str(tmonth)
+    if tday<10 : day = '0'+str(tday)
+    else:  day = str(tday)
+    if thour<10 : hour = '0'+str(thour)
+    else:  hour = str(thour)
+    if ttmin<10 : tmin = '0'+str(ttmin)
+    else:  tmin = str(ttmin)
+    if tsec<10 : sec = '0'+str(tsec)
+    else:  sec = str(tsec)
+
+
+    mytime =year+'-'+month+'-'+day+'T'+hour+':'+tmin+':'+sec+'.000Z'
+
+    return mytime
+
 
 
 
@@ -170,19 +207,18 @@ def loopingblock(fundation, usrid, wallet, sessionid, sleepingTime):
 
 def main():
 
-
-    data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
-    sessionid = data['sessionid']
-    usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
-    wallet = getUserInfo('mmarchan', 'wallet', sessionid)
-    fundationid = 2
-    loopingblock(fundationid, usr_id, wallet, sessionid, 20)
-    #print(block_User(15113, 5595, 2))
-    #unblock_User(2,3998)
-    #t = time.localtime()
     #2018-03-05T22:59:00.000Z
 
-    #block_time = str(t.tm_year)+'-'+str(t.tm_mon%10)+'-'+str(t.tm_mday%10)+'T'+str(t.tm_hour)+':'+str(t.tm_min+10)+':'+str(t.tm_sec)+'.000Z'
+
+
+        data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
+        sessionid = data['sessionid']
+        usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
+        wallet = getUserInfo('mmarchan', 'wallet', sessionid)
+        fundationid = 2
+
+        loopingblock(fundationid, usr_id, wallet, sessionid, 20)
+
 
 
 
