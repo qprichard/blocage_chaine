@@ -7,4 +7,4 @@ Script permettant de bloquer une personne pendant un interval de temps puis de l
 
 ## Fonctionnement
 
-lancer python3 blocage.py \<username\> \<time\>
+lancer python3 blocage.py \<temps Bloquage\> \<temps Débloquage\>
