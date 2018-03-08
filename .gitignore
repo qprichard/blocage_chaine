@@ -2,3 +2,4 @@ mdp.py
 __pycache__/*
 liste.csv
 bdi.csv
+backup.json
