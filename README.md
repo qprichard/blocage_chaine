@@ -7,7 +7,7 @@ Script permettant de bloquer une personne pendant un interval de temps puis de l
 
 ## Fonctionnement
 
-python3 blocage.py \<temps Bloquage\> \<temps Débloquage\>
+python3 blocage.py \<fichier csv\> \<temps Bloquage\> \<temps Débloquage\>
 
 
 python3 unblock_everybody.py backup : créer un backup des gens deja bloqués

@@ -9,6 +9,36 @@ import mdp
 import random
 from threading import Thread
 
+class Unbloqueur(Thread):
+    def __init__(self, blo_id, fundationid, sessionid):
+        Thread.__init__(self)
+        self.sessionid= sessionid
+        self.blo_id = blo_id
+        self.fundationid = fundationid
+    def run(self):
+        params = (
+            ('system_id', 'payutc'),
+            ('app_key', mdp.APP_KEY),
+            ('sessionid', str(self.sessionid)),
+        )
+        data='{"fun_id":'+str(self.fundationid)+',"blo_id":'+str(self.blo_id)+'}'
+        response = requests.post('https://api.nemopay.net/services/BLOCKED/remove', headers=headers, params=params, data=data)
+        print('user unblocked')
+
+class Bloqueur(Thread):
+    def __init__(self, usr_id, wallet, reason, end, fundationid, sessionid):
+        Thread.__init__(self)
+        self.usr_id = usr_id
+        self.wallet = wallet
+        self.reason = reason
+        self.end = end
+        self.sessionid= sessionid
+        self.fundationid = fundationid
+    def run(self):
+        block_User(self.usr_id,self.wallet,self.reason,self.end,self.fundationid, self.sessionid)
+        print(self.usr_id,' ',self.wallet,' ',self.reason,' ', self.end, ' blocked')
+
+
 headers = {
     'Host': 'api.nemopay.net',
     'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0',
@@ -80,12 +110,17 @@ def unblock(fundationid, sessionid):
     data='{"fun_id":'+str(fundationid)+'}'
     response = requests.post('https://api.nemopay.net/services/BLOCKED/getAll', headers=headers, params=params, data=data)
     json_data = json.loads(response.text)
+    unblocked_tab =[]
 
     for key, value in json_data.items():
             blocked_id = value['blo_id']
-            data='{"fun_id":'+str(fundationid)+',"blo_id":'+str(blocked_id)+'}'
-            response = requests.post('https://api.nemopay.net/services/BLOCKED/remove', headers=headers, params=params, data=data)
-            print(value['login'],' ',value['blo_id'], ' unblocked')
+            unblocked_tab.append(Unbloqueur(blocked_id,fundationid, sessionid))
+
+    for i in range(len(unblocked_tab)):
+        unblocked_tab[i].start()
+    for i in range(len(unblocked_tab)):
+        unblocked_tab[i].join()
+
 
     #data='{"fun_id":'+str(fundationid)+',"blo_id":'+str(blo_id)+'}'
     #response = requests.post('https://api.nemopay.net/services/BLOCKED/remove', headers=headers, params=params, data=data)
@@ -107,6 +142,7 @@ def setBackup(fundationid, sessionid):
 def blockPreviousUsers(fundationid, sessionid):
     json_data = open("backup.json").read()
     data = json.loads(json_data)
+    bloque_tab = []
 
     for key, value in data.items():
 
@@ -114,8 +150,12 @@ def blockPreviousUsers(fundationid, sessionid):
         wallet = getUserInfo(value['login'], 'wallet', sessionid)
         reason = str(value['blo_raison'])
         end = str(value['blo_removed'])
-        block_User(usrid,wallet,reason,end,fundationid, sessionid)
-        print(value['login'],' ',usrid,' ',wallet,' ',reason,' ', end, ' blocked')
+        bloque_tab.append(Bloqueur(usrid,wallet,reason,end,fundationid, sessionid))
+
+    for i in range(len(bloque_tab)):
+        bloque_tab[i].start()
+    for i in range(len(bloque_tab)):
+        bloque_tab[i].join()
 
 def getUserInfo(info, type, sessionid):
 

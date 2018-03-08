@@ -23,6 +23,17 @@ class Bloqueur(Thread):
         loopingblock(self.fundationid, usr_id, wallet, self.sessionid, self.blockingTime, self.unblockingTime)
 
 
+class Timer(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+    def run(self):
+        print("starting main Thread")
+        time.sleep(20)
+        for i in range(len(thread_tab)):
+            thread_tab[i].join()
+
+
+global thread_tab
 
 headers = {
     'Host': 'api.nemopay.net',
@@ -248,6 +259,10 @@ def main(argv):
     #usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
     #wallet = getUserInfo('mmarchan', 'wallet', sessionid)
     #fundationid = 2
+
+    #myPrincipalThread = Timer()
+    #myPrincipalThread.start()
+
 
     creatingThread(filename, blockingTime, unblockingTime, str(sessionid), 2)
     #print(usr_id, ' ', wallet)
