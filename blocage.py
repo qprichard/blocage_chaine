@@ -56,7 +56,10 @@ def block_User(usr_id, wallet, fundationid, sessionid):
 
     #2019-03-05T22:59:00.000Z
     #ajoute la personne a bloquer
-    data = '{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"Bizut! reviens dans 1 minute","fun_id":'+str(fundationid)+',"date_fin":"2019-03-05T22:59:00.000Z"}'
+    #data = '{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"test Payutc. Merci de patienter 1 à 2 minutes","fun_id":'+str(fundationid)+',"date_fin":"2019-04-05T22:59:00.000Z"}'
+    data='{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"test Payutc : la faute des GI","fun_id":'+str(fundationid)+',"date_fin":"2019-03-08T22:59:00.000Z"}'
+
+
     response = requests.post('https://api.nemopay.net/services/BLOCKED/block', headers=headers, params=params, data=data)
 
 
@@ -149,6 +152,8 @@ def getUserInfo(info, type, sessionid):
 	)
     data = '{"queryString":"'+str(info)+'","wallet_config":1}'
     response = requests.post('https://api.nemopay.net/services/GESUSERS/walletAutocomplete', headers=myheaders, params=params, data=data)
+    print(info+' '+type+' getted')
+
     if(type == 'username'):
         return response.json()[0]['username']
     if(type == 'wallet'):
@@ -211,9 +216,11 @@ def setBlockend(number, type):
 
 #crée un thread par personne a bloquer
 def creatingThread(inputfile, blockingTime, unblockingTime,  sessionid, fundationid):
+    print("enter in thread creation")
 
     thread_tab=[]
     with open(inputfile, 'rt') as csvfile:
+        print("CSV file opened")
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         for row in spamreader:
             if(row[0]!=''):
@@ -223,29 +230,32 @@ def creatingThread(inputfile, blockingTime, unblockingTime,  sessionid, fundatio
 
     for i in range(len(thread_tab)):
         thread_tab[i].start()
+        print("thread"+str(i)+"started")
     for i in range(len(thread_tab)):
         thread_tab[i].join()
-
 
 
 def main(argv):
     #blocked_username = str(sys.argv[1])
     #blocked_time = int(sys.argv[2])
-    blockingTime = int(sys.argv[1])
-    unblockingTime = int(sys.argv[2])
+    filename = str(sys.argv[1])
+    blockingTime = int(sys.argv[2])
+    unblockingTime = int(sys.argv[3])
 
     data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
     sessionid = data['sessionid']
 
-    #usr_id = getUserInfo(blocked_username, 'usrid', sessionid)
-    #wallet = getUserInfo(blocked_username, 'wallet', sessionid)
+    #usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
+    #wallet = getUserInfo('mmarchan', 'wallet', sessionid)
     #fundationid = 2
 
-    creatingThread('liste.csv', blockingTime, unblockingTime, str(sessionid), 2)
+    creatingThread(filename, blockingTime, unblockingTime, str(sessionid), 2)
+    #print(usr_id, ' ', wallet)
+    #block_User(usr_id, wallet, 2, sessionid)
 
 
 
-    #loopingblock(fundationid, usr_id, wallet, sessionid, blocked_time)
+    #loopingblock(fundationid, usr_id, wallet, sessionid, blockingTime, unblockingTime)
 
 
 if __name__ == "__main__":
