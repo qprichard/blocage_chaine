@@ -26,17 +26,19 @@ class Unbloqueur(Thread):
         print('user unblocked')
 
 class Bloqueur(Thread):
-    def __init__(self, usr_id, wallet, reason, end, fundationid, sessionid):
+    def __init__(self, login, reason, end, fundationid, sessionid):
         Thread.__init__(self)
-        self.usr_id = usr_id
-        self.wallet = wallet
         self.reason = reason
         self.end = end
         self.sessionid= sessionid
         self.fundationid = fundationid
+        self.login = login
     def run(self):
-        block_User(self.usr_id,self.wallet,self.reason,self.end,self.fundationid, self.sessionid)
-        print(self.usr_id,' ',self.wallet,' ',self.reason,' ', self.end, ' blocked')
+        info =getUserInfo(str(self.login), 'usrid', self.sessionid)
+        usrid = info[0]['user_id']
+        wallet = info[0]['id']
+        block_User(usrid, wallet,self.reason,self.end,self.fundationid, self.sessionid)
+        print(self.login,' ',self.reason,' ', self.end, ' blocked')
 
 
 headers = {
@@ -46,7 +48,7 @@ headers = {
     'Accept-Language': 'en-US,en;q=0.5',
     'Referer': 'https://admin.nemopay.net/',
     'Content-Type': 'application/json',
-    'Content-Length': '91',
+    'Content-Lengtsnastuzzh': '91',
     'Origin': 'https://admin.nemopay.net',
     'Connection': 'keep-alive',
 }
@@ -139,18 +141,16 @@ def setBackup(fundationid, sessionid):
         json.dump(json_data, outfile, indent = 4)
         print('Backup créé')
 
-def blockPreviousUsers(fundationid, sessionid):
-    json_data = open("backup.json").read()
+def blockPreviousUsers(fundationid, sessionid, myfile):
+    json_data = open(str(myfile)).read()
     data = json.loads(json_data)
     bloque_tab = []
 
     for key, value in data.items():
 
-        usrid = getUserInfo(value['login'], 'usrid', sessionid)
-        wallet = getUserInfo(value['login'], 'wallet', sessionid)
         reason = str(value['blo_raison'])
         end = str(value['blo_removed'])
-        bloque_tab.append(Bloqueur(usrid,wallet,reason,end,fundationid, sessionid))
+        bloque_tab.append(Bloqueur(str(value['login']),reason,end,fundationid, sessionid))
 
     for i in range(len(bloque_tab)):
         bloque_tab[i].start()
@@ -175,7 +175,8 @@ def getUserInfo(info, type, sessionid):
     data = '{"queryString":"'+str(info)+'","wallet_config":1}'
     response = requests.post('https://api.nemopay.net/services/GESUSERS/walletAutocomplete', headers=myheaders, params=params, data=data)
     print(info+' '+type+' getted')
-
+    return response.json()
+    """
     if(type == 'username'):
         return response.json()[0]['username']
     if(type == 'wallet'):
@@ -184,6 +185,7 @@ def getUserInfo(info, type, sessionid):
         return response.json()[0]['user_id']
     if(type == 'tag'):
         return response.json()[0]['tag']
+        """
 
 def block_User(usr_id, wallet, reason, end, fundationid, sessionid):
     #blocked_id = 0
@@ -206,6 +208,7 @@ def block_User(usr_id, wallet, reason, end, fundationid, sessionid):
 
 def main(argv):
     parameter = str(sys.argv[1])
+    myfile = str(sys.argv[2])
 
     data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
     sessionid = data['sessionid']
@@ -215,7 +218,7 @@ def main(argv):
         setBackup(fundationid, sessionid)
     if(parameter == "unblock"):
         unblock(fundationid, sessionid)
-        blockPreviousUsers(fundationid, sessionid)
+        blockPreviousUsers(fundationid, sessionid, myfile)
 
 
 
