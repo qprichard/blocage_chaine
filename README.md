@@ -10,6 +10,6 @@ Script permettant de bloquer une personne pendant un interval de temps puis de l
 python3 blocage.py \<fichier csv\> \<fundationid\> \<\'reason\'\> \<temps Bloquage\> \<temps Débloquage\>
 
 
-python3 unblock_everybody.py backup : créer un backup des gens deja bloqués
+python3 unblock_everybody.py backup \<Nom du fichier json à creer \> : créer un backup des gens deja bloqués
 
-python3 unblock_everybody.py unblock : débloque tout le monde sauf les présents sur le backup
+python3 unblock_everybody.py unblock \<Nom du fichier à reccuperer \>: débloque tout le monde sauf les présents sur le backup

@@ -127,7 +127,7 @@ def unblock(fundationid, sessionid):
     #data='{"fun_id":'+str(fundationid)+',"blo_id":'+str(blo_id)+'}'
     #response = requests.post('https://api.nemopay.net/services/BLOCKED/remove', headers=headers, params=params, data=data)
     #print("user unblocked")
-def setBackup(fundationid, sessionid):
+def setBackup(fundationid, sessionid, filename):
     params = (
         ('system_id', 'payutc'),
         ('app_key', mdp.APP_KEY),
@@ -137,7 +137,7 @@ def setBackup(fundationid, sessionid):
     data='{"fun_id":'+str(fundationid)+'}'
     response = requests.post('https://api.nemopay.net/services/BLOCKED/getAll', headers=headers, params=params, data=data)
     json_data = json.loads(response.text)
-    with open("backup.json", "w") as outfile:
+    with open(str(filename), "w") as outfile:
         json.dump(json_data, outfile, indent = 4)
         print('Backup créé')
 
@@ -215,7 +215,7 @@ def main(argv):
     fundationid = 2
 
     if(parameter == "backup"):
-        setBackup(fundationid, sessionid)
+        setBackup(fundationid, sessionid, myfile)
     if(parameter == "unblock"):
         unblock(fundationid, sessionid)
         blockPreviousUsers(fundationid, sessionid, myfile)
