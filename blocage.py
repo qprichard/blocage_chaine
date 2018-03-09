@@ -10,17 +10,18 @@ import random
 from threading import Thread
 
 class Bloqueur(Thread):
-    def __init__(self, username, blockingTime, unblockingTime, sessionid, fundationid):
+    def __init__(self, username, blockingTime, unblockingTime, sessionid, fundationid, reason):
         Thread.__init__(self)
         self.username = username
         self.blockingTime = blockingTime
         self.unblockingTime = unblockingTime
         self.sessionid = sessionid
         self.fundationid = fundationid
+        self.reason = reason
     def run(self):
         usr_id = getUserInfo(self.username, 'usrid', self.sessionid)
         wallet = getUserInfo(self.username, 'wallet', self.sessionid)
-        loopingblock(self.fundationid, usr_id, wallet, self.sessionid, self.blockingTime, self.unblockingTime)
+        loopingblock(self.fundationid, usr_id, wallet, self.reason, self.sessionid, self.blockingTime, self.unblockingTime)
 
 
 class Timer(Thread):
@@ -56,7 +57,7 @@ params = (
 
 
 #fonction pour bloquer quelqu'un à partir d'un usrid et d'un wallet sur une fondation donnee
-def block_User(usr_id, wallet, fundationid, sessionid):
+def block_User(usr_id, wallet, fundationid, reason, sessionid):
     blocked_id = 0
 
     params = (
@@ -68,7 +69,7 @@ def block_User(usr_id, wallet, fundationid, sessionid):
     #2019-03-05T22:59:00.000Z
     #ajoute la personne a bloquer
     #data = '{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"test Payutc. Merci de patienter 1 à 2 minutes","fun_id":'+str(fundationid)+',"date_fin":"2019-04-05T22:59:00.000Z"}'
-    data='{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"test Payutc : la faute des GI","fun_id":'+str(fundationid)+',"date_fin":"2019-03-08T22:59:00.000Z"}'
+    data='{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"'+str(reason)+'","fun_id":'+str(fundationid)+',"date_fin":"2019-03-08T22:59:00.000Z"}'
 
 
     response = requests.post('https://api.nemopay.net/services/BLOCKED/block', headers=headers, params=params, data=data)
@@ -175,7 +176,7 @@ def getUserInfo(info, type, sessionid):
         return response.json()[0]['tag']
 
 #bloque et débloque en boucle avec un temps de bloquage et de débloquage
-def loopingblock(fundation, usrid, wallet, sessionid, blockingTime, unblockingTime):
+def loopingblock(fundation, usrid, wallet, reason, sessionid, blockingTime, unblockingTime):
     block = 0
     while True:
         if(block!=0):
@@ -183,7 +184,7 @@ def loopingblock(fundation, usrid, wallet, sessionid, blockingTime, unblockingTi
             block = 0
             time.sleep(unblockingTime)
         else:
-            block = block_User(usrid, wallet, fundation, sessionid)
+            block = block_User(usrid, wallet, fundation, reason, sessionid)
             time.sleep(blockingTime)
 
 #definit date/heure etc /!\ INUTILISE /!\
@@ -226,7 +227,7 @@ def setBlockend(number, type):
 
 
 #crée un thread par personne a bloquer
-def creatingThread(inputfile, blockingTime, unblockingTime,  sessionid, fundationid):
+def creatingThread(inputfile, blockingTime, unblockingTime,  sessionid, fundationid, reason):
     print("enter in thread creation")
 
     thread_tab=[]
@@ -235,7 +236,7 @@ def creatingThread(inputfile, blockingTime, unblockingTime,  sessionid, fundatio
         spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
         for row in spamreader:
             if(row[0]!=''):
-                thread_tab.append(Bloqueur(str(row[0]), blockingTime, unblockingTime, sessionid, fundationid))
+                thread_tab.append(Bloqueur(str(row[0]), blockingTime, unblockingTime, sessionid, fundationid, reason))
                 print(row[0])
 
 
@@ -250,8 +251,10 @@ def main(argv):
     #blocked_username = str(sys.argv[1])
     #blocked_time = int(sys.argv[2])
     filename = str(sys.argv[1])
-    blockingTime = int(sys.argv[2])
-    unblockingTime = int(sys.argv[3])
+    fundationid = str(sys.argv[2])
+    reason = str(sys.argv[3])
+    blockingTime = int(sys.argv[4])
+    unblockingTime = int(sys.argv[5])
 
     data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
     sessionid = data['sessionid']
@@ -264,7 +267,7 @@ def main(argv):
     #myPrincipalThread.start()
 
 
-    creatingThread(filename, blockingTime, unblockingTime, str(sessionid), 2)
+    creatingThread(filename, blockingTime, unblockingTime, str(sessionid), fundationid, reason)
     #print(usr_id, ' ', wallet)
     #block_User(usr_id, wallet, 2, sessionid)
 
