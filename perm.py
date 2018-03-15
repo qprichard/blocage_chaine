@@ -314,10 +314,10 @@ def main(argv):
     #myPrincipalThread = Timer()
     #myPrincipalThread.start()
 
-    mt = Main_Thread(filename, blockingTime, unblockingTime, str(sessionid), fundationid, reason)
-    pt = Power_Thread()
-    mt.start()
-    pt.start()
+    #mt = Main_Thread(filename, blockingTime, unblockingTime, str(sessionid), fundationid, reason)
+    #pt = Power_Thread()
+    #mt.start()
+    #pt.start()
 
 
 
