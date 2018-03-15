@@ -10,8 +10,8 @@ liste2.csv
 nouv_liste.csv
 new.csv
 config.js
-packkage-lock.json
-node_module/*
+package-lock.json
+node_modules/*
 package.json
 payutc.js
 
