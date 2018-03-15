@@ -9,7 +9,3 @@ real_backup.json
 liste2.csv
 nouv_liste.csv
 new.csv
-node_modules/*
-package-lock.json
-package.json
-payutc.js
