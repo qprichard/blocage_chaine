@@ -1,0 +1,6 @@
+USERNAME = 'quentin.richard@etu.utc.fr'
+PASSWORD = 'QuenRic94'
+APP_KEY = '0a93e8e18e6ed78fa50c4d74e949801b'
+NEW_MEMBER_PTS = 30
+OLD_MEMBER_PTS = 10
+LOOSER_MEMBER_PTS = 30
