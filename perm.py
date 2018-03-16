@@ -9,14 +9,14 @@ import mdp
 import random
 from difflib import unified_diff
 from threading import Thread
-
+from bdd import MySqlConnection, MySqlDeconnection, UsersInformation, getWin
 
 global thread_tab
-global clan
+global winningclan
 thread_tab=[]
-clan ='peaky'
+winningclan ='peaky'
 class Bloqueur(Thread):
-    def __init__(self, username, blockingTime, unblockingTime, sessionid, fundationid, reason):
+    def __init__(self, username, blockingTime, unblockingTime, sessionid, fundationid, reason, clan):
         Thread.__init__(self)
         self.username = username
         self.blockingTime = blockingTime
@@ -24,10 +24,11 @@ class Bloqueur(Thread):
         self.sessionid = sessionid
         self.fundationid = fundationid
         self.reason = reason
+        self.clan = clan
     def run(self):
         usr_id = getUserInfo(self.username, 'usrid', self.sessionid)
         wallet = getUserInfo(self.username, 'wallet', self.sessionid)
-        loopingblock(self.fundationid, usr_id, wallet, self.reason, self.sessionid, self.blockingTime, self.unblockingTime)
+        loopingblock(self.fundationid, usr_id, wallet, self.reason, self.sessionid, self.blockingTime, self.unblockingTime, self.clan)
 
 
 class Main_Thread(Thread):
@@ -42,25 +43,26 @@ class Main_Thread(Thread):
 
     def run(self):
         while True:
+            cnx = MySqlConnection()
+            UsersInformation(cnx)
+            MySqlDeconnection(cnx)
             print("Acces à la base de donnée pour reccuperer les nouveaux utilisateurs")
             compareCSV('liste2.csv', 'nouv_liste.csv', self.filename)
             creatingThread(self.filename, self.blockingTime, self.unblockingTime, self.sessionid, self.fundationid, self.reason)
-            time.sleep(30)
+            time.sleep(20)
 
 class Power_Thread(Thread):
     def __init__(self):
         Thread.__init__(self)
     def run(self):
-        global clan
+        global winningclan
+
         while True:
-            print("getting power information")
-            if(clan=='peaky'):
-                clan = 'italian'
-            else:
-                clan='peaky'
+            cnx = MySqlConnection()
+            winningclan = getWin(cnx)
+            MySqlDeconnection(cnx)
+            print("le clan gagnant est "+ winningclan)
             time.sleep(10)
-
-
 
 
 headers = {
@@ -100,21 +102,14 @@ def compareCSV(csvfile, newcsvfile, fileToAdd):
 #fonction pour bloquer quelqu'un à partir d'un usrid et d'un wallet sur une fondation donnee
 def block_User(usr_id, wallet, fundationid, reason, sessionid):
     blocked_id = 0
-
     params = (
         ('system_id', 'payutc'),
         ('app_key', mdp.APP_KEY),
         ('sessionid', str(sessionid)),
     )
-
-    #2019-03-05T22:59:00.000Z
-    #ajoute la personne a bloquer
-    #data = '{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"test Payutc. Merci de patienter 1 à 2 minutes","fun_id":'+str(fundationid)+',"date_fin":"2019-04-05T22:59:00.000Z"}'
     data='{"usr_id":'+str(usr_id)+',"wallet":'+str(wallet)+',"raison":"'+str(reason)+'","fun_id":'+str(fundationid)+',"date_fin":"2019-03-08T22:59:00.000Z"}'
 
-
     response = requests.post('https://api.nemopay.net/services/BLOCKED/block', headers=headers, params=params, data=data)
-
 
     #reccupere le blo_id de la personne
     data='{"fun_id":'+str(fundationid)+'}'
@@ -217,10 +212,12 @@ def getUserInfo(info, type, sessionid):
         return response.json()[0]['tag']
 
 #bloque et débloque en boucle avec un temps de bloquage et de débloquage
-def loopingblock(fundation, usrid, wallet, reason, sessionid, blockingTime, unblockingTime):
+def loopingblock(fundation, usrid, wallet, reason, sessionid, blockingTime, unblockingTime, clan):
     block = 0
+
     while True:
-        if(clan=='peaky'):
+        global winningclan
+        if(clan!=winningclan):
             if(block!=0):
                 unblock_User(fundation, block, sessionid)
                 block = 0
@@ -279,10 +276,10 @@ def creatingThread(inputfile, blockingTime, unblockingTime,  sessionid, fundatio
 
     with open(inputfile, 'rt') as csvfile:
         print("CSV file opened")
-        spamreader = csv.reader(csvfile, delimiter=',', quotechar='|')
+        spamreader = csv.reader(csvfile, delimiter=';', quotechar='|')
         for row in spamreader:
             if(row[0]!=''):
-                thread_tab.append(Bloqueur(str(row[0]), blockingTime, unblockingTime, sessionid, fundationid, reason))
+                thread_tab.append(Bloqueur(str(row[0]), blockingTime, unblockingTime, sessionid, fundationid, reason, str(row[3])))
                 print(row[0])
 
 
@@ -306,22 +303,15 @@ def main(argv):
     data = loginCas2(mdp.USERNAME, mdp.PASSWORD)
     sessionid = data['sessionid']
 
-
     #usr_id = getUserInfo('mmarchan', 'usrid', sessionid)
     #wallet = getUserInfo('mmarchan', 'wallet', sessionid)
-    #fundationid = 2
-
-    #myPrincipalThread = Timer()
-    #myPrincipalThread.start()
-
-    #mt = Main_Thread(filename, blockingTime, unblockingTime, str(sessionid), fundationid, reason)
-    #pt = Power_Thread()
-    #mt.start()
-    #pt.start()
-
-
-
     #creatingThread(filename, blockingTime, unblockingTime, str(sessionid), fundationid, reason)
+
+
+    mt = Main_Thread(filename, blockingTime, unblockingTime, str(sessionid), fundationid, reason)
+    pt = Power_Thread()
+    mt.start()
+    pt.start()
 
 
 if __name__ == "__main__":
