@@ -4,6 +4,7 @@ const payutc = require('./payutc.js');
 payutc.config.setAppKey(APP_KEY);
 mySqlClient = SQLConnection();
 ispresent = 1;
+winningclan = 'italian'
 
 payutc.login.payuser({login:USERNAME, password:PASSWORD, callback: function(){init()}});
 
@@ -25,7 +26,8 @@ function init()
       if(!ispresent) {
        getUserInfo(message, 'login', function(err, data){
          console.log(data)
-        insertIntoBdd(mySqlClient, data[0]['tag'], data[0]['username'], data[0]['user_id'], data[0]['id'])
+        clan = insertIntoBdd(mySqlClient, data[0]['tag'], data[0]['username'], data[0]['user_id'], data[0]['id'])
+
        });
       //  data = getUserInfo(message, 'login');
 
@@ -70,8 +72,6 @@ function SQLConnection(){
 function getInformation(mySqlClient, uid, callback){
   var selectQuery = 'Select * from users where id_badge="'+uid+'"';
   //ispresent = 0;
-
-
   mySqlClient.query(
     selectQuery,
     function select(error, results, fields){
@@ -80,7 +80,11 @@ function getInformation(mySqlClient, uid, callback){
       {
       ispresent = 1
       console.log ('Cette personne est dans la base');
+      getWin(mySqlClient, function(err, data){
+          if(data[0]['name']==results[0]['clan']) updatePoints(mySqlClient, OLD_MEMBER_PTS, results[0]['clan'])
+          else updatePoints(mySqlClient, LOOSER_MEMBER_PTS, results[0]['clan'])
 
+      })
 
 
       }
@@ -111,6 +115,33 @@ function insertIntoBdd(mySqlConnection, uid, login, usr_id, wallet)
     function (err, result){
       if(err) throw err;
       console.log("1 record inserted");
+      updatePoints(mySqlConnection, NEW_MEMBER_PTS, clan)
+    }
+  );
+
+  return clan;
+}
+
+function updatePoints(mySqlConnection, pts, clan)
+{
+  var updateData = "update points set pts = pts+"+pts+" where name='"+clan+"';"
+  mySqlClient.query(
+    updateData,
+    function(err,result){
+      if(err) throw err;
+      console.log("points mis à jour")
+    }
+
+  );
+}
+
+function getWin(mySqlConnection, callback)
+{
+  var selectData = "select name from points where pts = (select max(pts) from points)"
+  mySqlClient.query(
+    selectData,
+    function (err, result){
+      callback(null, result)
     }
   );
 }

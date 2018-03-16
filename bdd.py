@@ -36,6 +36,14 @@ def UsersInformation(cnx):
             print('{0} : {1} - {2} - {3} - {4} - {5} - {6}'.format(row[0], row[1], row[2], row[3], row[4], row[5], row[6]))
             myLine = str(row[1])+';'+str(row[2])+';'+str(row[3])+';'+str(row[5])+'\n'
             myfile.write(myLine)
+            UpdateAdded(cnx, row[1])
+
+def UpdateAdded(cnx, login):
+    params = "Update users set added = 1 where login ='"+str(login)+"';"
+    cursor = cnx.cursor()
+    cursor.execute(params)
+    cnx.commit()
+
 
 
 def getWin(cnx):
@@ -45,11 +53,12 @@ def getWin(cnx):
     rows = cursor.fetchall()
     for row in rows:
         return row[0]
-"""
+
 def main():
     cnx = MySqlConnection()
-    UsersInformation(cnx)
+    #UsersInformation(cnx)
+    UpdateAdded(cnx, 'qrichard')
+
     MySqlDeconnection(cnx)
 
 main()
-"""
