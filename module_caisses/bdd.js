@@ -1,5 +1,6 @@
 
 require('./config.js')
+const myClan =require('./test')
 const payutc = require('./payutc.js');
 payutc.config.setAppKey(APP_KEY);
 mySqlClient = SQLConnection();
@@ -115,6 +116,7 @@ function insertIntoBdd(mySqlConnection, uid, login, usr_id, wallet)
     function (err, result){
       if(err) throw err;
       console.log("1 record inserted");
+
       updatePoints(mySqlConnection, NEW_MEMBER_PTS, clan)
     }
   );
@@ -124,6 +126,7 @@ function insertIntoBdd(mySqlConnection, uid, login, usr_id, wallet)
 
 function updatePoints(mySqlConnection, pts, clan)
 {
+  myClan.afficherClan(clan)
   var updateData = "update points set pts = pts+"+pts+" where name='"+clan+"';"
   mySqlClient.query(
     updateData,
