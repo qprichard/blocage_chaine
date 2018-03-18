@@ -2,7 +2,28 @@ import mysql.connector
 from mysql.connector import errorcode
 import mdp
 import csv
+import requests
+import json
+import urllib
+import urllib.parse
 
+
+headers = {
+    'Host': 'api.nemopay.net',
+    'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101 Firefox/52.0',
+    'Accept': 'application/json',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Referer': 'https://admin.nemopay.net/',
+    'Content-Type': 'application/json',
+    'Content-Length': '91',
+    'Origin': 'https://admin.nemopay.net',
+    'Connection': 'keep-alive',
+}
+params = (
+    ('system_id', 'payutc'),
+    ('app_key', mdp.APP_KEY),
+    #('sessionid', 'wq6g9czs7gfjdt109418b2tix56w9tv8'),
+)
 
 def MySqlConnection():
     try:
@@ -54,11 +75,81 @@ def getWin(cnx):
     for row in rows:
         return row[0]
 
-def main():
-    cnx = MySqlConnection()
-    #UsersInformation(cnx)
-    UpdateAdded(cnx, 'qrichard')
+def insertAdmin(cnx):
+    sessionid = loginCas2(mdp.USERNAME, mdp.PASSWORD)['sessionid']
+    with open('liste_admin.csv', 'rt') as myfile :
+        spamreader = csv.reader(myfile, delimiter=';', quotechar='|')
+        for row in spamreader:
+            if(row[0]!=''):
+                data = getUserInfo(str(row[0]),'rien', sessionid)
+                id_badge = data['tag']
+                login = data['username']
+                usr_id = data['user_id']
+                wallet = data['id']
+                myInsert = "insert into users (id_badge, login, usr_id, wallet, admin, clan) values ('"+str(id_badge)+"','"+str(login)+"','"+str(usr_id)+"','"+str(wallet)+"',1,'peaky');"
+                cursor = cnx.cursor()
+                cursor.execute(myInsert)
+                cnx.commit()
 
-    MySqlDeconnection(cnx)
 
-main()
+def loginCas2(username,password):
+    myheaders = {
+                'Content-Type': 'application/json',
+                'Nemopay-Version': '2017-12-15'
+    }
+
+    params = (
+        ('system_id', 'payutc'),
+        ('app_key', mdp.APP_KEY),
+        #('sessionid', 'vc4zyvwjkbwxxfo9zaowyl0d7e4yx5lh'),
+    )
+    service = 'http://localhost/nemopay-mini-cli/login'
+    casurl = requests.post('https://api.nemopay.net/services/ROSETTINGS/getCasUrl', headers=myheaders, params=params)
+    casurl = json.loads(casurl.text)
+
+    headerscas = {
+		'Content-type': 'application/x-www-form-urlencoded',
+		'Accept': 'text/plain',
+		'User-Agent':'python'
+	}
+    #Permet d'encoder pour une connexion automatique
+    paramscas = urllib.parse.urlencode({
+		'service': service,
+		'username': username,
+		'password': password
+	})
+
+    response = requests.post(casurl+'/v1/tickets/', headers=headerscas, params=paramscas)
+    location = response.headers['location']
+    tgt = location[location.rfind('/')+1:]
+
+    response = requests.post(casurl+'/v1/tickets/'+tgt, headers=headerscas, params=paramscas)
+    st = response.text
+
+    data = '{"ticket":"'+st+'","service":"'+service+'"}'
+    response = requests.post('https://api.nemopay.net/services/MYACCOUNT/loginCas2', headers=headers, params=params, data=data)
+
+    if response.status_code == 200:
+        print("logged in via CAS as "+response.json()['username'])
+
+    return response.json()
+
+def getUserInfo(info, type, sessionid):
+
+    print("Getting " + info + ' '+ type )
+
+    myheaders = {
+    		'Content-Type': 'application/json',
+    		'Nemopay-Version': '2017-12-15',
+    }
+
+    params = (
+		('system_id', 'payutc'),
+        ('app_key', mdp.APP_KEY),
+		('sessionid', sessionid),
+
+	)
+    data = '{"queryString":"'+str(info)+'","wallet_config":1}'
+    response = requests.post('https://api.nemopay.net/services/GESUSERS/walletAutocomplete', headers=myheaders, params=params, data=data)
+    print(info+' '+type+' getted')
+    return response.json()[0]
