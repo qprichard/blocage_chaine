@@ -1,4 +1,5 @@
 import mysql.connector
+import MySQLdb as db
 from mysql.connector import errorcode
 import mdp
 import csv
@@ -27,7 +28,8 @@ params = (
 
 def MySqlConnection():
     try:
-      cnx = mysql.connector.connect(user=mdp.BDD_USER, password=mdp.BDD_PASSWORD, host=mdp.BDD_HOST, database='peak_perm')
+      cnx = mysql.connector.connect(user=mdp.BDD_USER, password=mdp.BDD_PASSWORD, host=mdp.BDD_HOST, database=mdp.BDD)
+
     except mysql.connector.Error as err:
       if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
         print("Something is wrong with your user name or password")
@@ -38,6 +40,20 @@ def MySqlConnection():
     else:
         print("connecté")
         return cnx
+
+def MySqlConnection2():
+    try:
+        connection = db.Connection(host=mdp.BDD_HOST,
+                                       user=mdp.BDD_USER, passwd=mdp.BDD_PASSWORD, db=mdp.BDD)
+
+
+
+    except Exception as e:
+        print (e)
+
+    finally:
+        print('connecté à la bdd')
+        return connection
 
 
 def MySqlDeconnection(cnx):

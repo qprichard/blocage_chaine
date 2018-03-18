@@ -56,10 +56,10 @@ function SQLConnection(){
   try {
     var mysql = require('mysql');
     var mySqlClient = mysql.createConnection({
-      host  : "localhost",
-      user : "root",
-      password  : "quentinrichard94",
-      database  : "peak_perm"
+      host  : BDD_HOST,
+      user : BDD_USERNAME,
+      password  : BDD_PASSWORD,
+      database  : BDD
     });
   } catch (e) {
     console.log("erreur de connection")

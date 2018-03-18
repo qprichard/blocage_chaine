@@ -1,6 +1,10 @@
-USERNAME = 'quentin.richard@etu.utc.fr'
-PASSWORD = 'QuenRic94'
-APP_KEY = '0a93e8e18e6ed78fa50c4d74e949801b'
+USERNAME = "quentin.richard@etu.utc.fr"
+PASSWORD = "QuenRic94"
+BDD_USERNAME = "155364_quentin"
+BDD_PASSWORD = "quentinrichard94"
+BDD = "blackaquilius_peaky_perm"
+BDD_HOST = "mysql-blackaquilius.alwaysdata.net"
+APP_KEY = "0a93e8e18e6ed78fa50c4d74e949801b"
 NEW_MEMBER_PTS = 3
 OLD_MEMBER_PTS = 1
 LOOSER_MEMBER_PTS = 3
