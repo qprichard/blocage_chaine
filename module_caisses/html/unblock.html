@@ -1,19 +1,26 @@
 <!DOCTYPE html>
 <html>
+<head>
+  <meta charset="utf-8">
+</head>
 <body>
+  <script
+          src="https://code.jquery.com/jquery-3.3.1.min.js"
+          integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+          crossorigin="anonymous"></script>
+<form  action="#" method="post">
+  <input type="text" id="login">
 
-<form action="" onsubmit="myFunction()">
-  Enter name: <input type="text" id="login"name="fname">
-  <input type="submit" value="Submit">
+  <input type="button" id="button" value="débloquer">
+
 </form>
-<script
-        src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-        crossorigin="anonymous"></script>
+<script type="text/javascript">
 
-<script>
-function myFunction() {
-    login = document.getElementById("login").value
+
+
+  $('#button').click(function(){
+    login = document.getElementById('login').value
+    console.log(login)
     $.ajax
       ({
           type: "POST",
@@ -24,11 +31,12 @@ function myFunction() {
           //json object to sent to the authentication url
           data: {"login": login},
           success: function (data) {
-            console.log(data)
-
+            console.log("yop")
           }
       })
-}
+
+
+  });
 </script>
 
 </body>
