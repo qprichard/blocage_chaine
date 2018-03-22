@@ -10,6 +10,7 @@ import random
 from difflib import unified_diff
 from threading import Thread
 from bdd import MySqlConnection, MySqlDeconnection, UsersInformation, getWin
+from ticket import changer
 
 global thread_tab
 global winningclan
@@ -52,8 +53,9 @@ class Main_Thread(Thread):
             time.sleep(20)
 
 class Power_Thread(Thread):
-    def __init__(self):
+    def __init__(self, sessionid):
         Thread.__init__(self)
+        self.sessionid = sessionid
     def run(self):
         global winningclan
 
@@ -62,6 +64,7 @@ class Power_Thread(Thread):
             winningclan = getWin(cnx)
             MySqlDeconnection(cnx)
             print("le clan gagnant est "+ winningclan)
+            changer(str(winningclan)+" Gagnants BY ORDER OF THE PICKY BLINDERS", self.sessionid)
             time.sleep(10)
 
 
@@ -309,7 +312,7 @@ def main(argv):
 
 
     mt = Main_Thread(filename, blockingTime, unblockingTime, str(sessionid), fundationid, reason)
-    pt = Power_Thread()
+    pt = Power_Thread(sessionid)
     mt.start()
     pt.start()
 
